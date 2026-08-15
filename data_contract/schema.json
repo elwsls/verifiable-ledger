@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/bookkeeping-data-contract-v0.1.schema.json",
+  "title": "记账 AI-first 数据契约（最小骨架 v0.1）",
+  "description": "复式记账数据契约：科目、凭证、借贷校验规则声明化，带 schema 可机器校验。与 Beancount 文本账本同构。借贷合计为 0 的算术规则由 validate.py 执行（JSON Schema 无法表达求和）。",
+  "type": "object",
+  "required": ["format", "currency", "accounts", "transactions"],
+  "properties": {
+    "format": { "const": "bookkeeping-data-contract-v0.1" },
+    "currency": { "const": "CNY" },
+    "accounts": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[A-Z][A-Za-z-]*(:[A-Za-z][A-Za-z-]*)*$": { "$ref": "#/$defs/account" }
+      },
+      "additionalProperties": false
+    },
+    "transactions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/transaction" }
+    }
+  },
+  "$defs": {
+    "account": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["asset", "liability", "equity", "income", "expense"] },
+        "open_date": { "$ref": "#/$defs/date" },
+        "close_date": { "anyOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }
+      },
+      "additionalProperties": false
+    },
+    "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "transaction": {
+      "type": "object",
+      "required": ["date", "payee", "narration", "postings"],
+      "properties": {
+        "date": { "$ref": "#/$defs/date" },
+        "payee": { "type": "string" },
+        "narration": { "type": "string" },
+        "postings": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/posting" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "posting": {
+      "type": "object",
+      "required": ["account", "amount", "currency"],
+      "properties": {
+        "account": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "const": "CNY" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

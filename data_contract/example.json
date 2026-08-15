@@ -1,0 +1,60 @@
+{
+  "format": "bookkeeping-data-contract-v0.1",
+  "currency": "CNY",
+  "accounts": {
+    "Assets:Bank:Check": { "type": "asset", "open_date": "2026-01-01" },
+    "Assets:Cash": { "type": "asset", "open_date": "2026-01-01" },
+    "Liabilities:CreditCard": { "type": "liability", "open_date": "2026-01-01" },
+    "Equity:Opening-Balances": { "type": "equity", "open_date": "2026-01-01" },
+    "Income:Services": { "type": "income", "open_date": "2026-01-01" },
+    "Expenses:Office": { "type": "expense", "open_date": "2026-01-01" },
+    "Expenses:Meals": { "type": "expense", "open_date": "2026-01-01" }
+  },
+  "transactions": [
+    {
+      "date": "2026-01-01",
+      "payee": "期初",
+      "narration": "开户资金注入",
+      "postings": [
+        { "account": "Assets:Bank:Check", "amount": 50000, "currency": "CNY" },
+        { "account": "Equity:Opening-Balances", "amount": -50000, "currency": "CNY" }
+      ]
+    },
+    {
+      "date": "2026-01-01",
+      "payee": "期初",
+      "narration": "备用现金",
+      "postings": [
+        { "account": "Assets:Cash", "amount": 2000, "currency": "CNY" },
+        { "account": "Equity:Opening-Balances", "amount": -2000, "currency": "CNY" }
+      ]
+    },
+    {
+      "date": "2026-01-05",
+      "payee": "客户A",
+      "narration": "咨询项目一期款",
+      "postings": [
+        { "account": "Assets:Bank:Check", "amount": 20000, "currency": "CNY" },
+        { "account": "Income:Services", "amount": -20000, "currency": "CNY" }
+      ]
+    },
+    {
+      "date": "2026-01-10",
+      "payee": "办公用品店",
+      "narration": "桌椅与耗材",
+      "postings": [
+        { "account": "Expenses:Office", "amount": 3200, "currency": "CNY" },
+        { "account": "Liabilities:CreditCard", "amount": -3200, "currency": "CNY" }
+      ]
+    },
+    {
+      "date": "2026-01-22",
+      "payee": "餐厅",
+      "narration": "客户接待餐费",
+      "postings": [
+        { "account": "Expenses:Meals", "amount": 860, "currency": "CNY" },
+        { "account": "Assets:Cash", "amount": -860, "currency": "CNY" }
+      ]
+    }
+  ]
+}

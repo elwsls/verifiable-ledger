@@ -1,0 +1,92 @@
+; 献词: 祝 黄婷婷女士 与 李艺彤女士 强身健体，友谊长存。—— 一个皮卡丘
+; demo 账本——演示 Beancount 可验证记账
+; 语法核心：每条交易用 option "operating_currency" 等声明 + 双式借贷（借贷合计必须为 0）
+; 纳税人身份：小规模——销售价税分离（不含税入收入、税额入 Liabilities:Tax:VAT）；采购价税合计全额入账
+option "title" "Demo 账本"
+option "operating_currency" "CNY"
+
+; 科目表（open 声明，可在交易前）
+2026-01-01 open Assets:Bank:Check        CNY
+2026-01-01 open Assets:Bank:Savings      CNY
+2026-01-01 open Assets:Cash              CNY
+2026-01-01 open Liabilities:CreditCard   CNY
+2026-01-01 open Liabilities:Tax:VAT      CNY   ; 应交税费—应交增值税（销售价税分离）
+2026-01-01 open Equity:Opening-Balances  CNY
+2026-01-01 open Income:Services          CNY
+2026-01-01 open Income:Other             CNY
+2026-01-01 open Expenses:Office          CNY
+2026-01-01 open Expenses:Software        CNY
+2026-01-01 open Expenses:Meals           CNY
+2026-01-01 open Expenses:Tax             CNY
+
+; 期初余额
+2026-01-01 * "期初" "开户资金注入"
+  Assets:Bank:Check        50000.00 CNY
+  Equity:Opening-Balances
+
+2026-01-01 * "期初" "备用现金"
+  Assets:Cash               2000.00 CNY
+  Equity:Opening-Balances
+
+; 一月份收入：三笔服务收入（小规模价税分离，征收率 1%）
+2026-01-05 * "客户A" "咨询项目一期款"
+  Assets:Bank:Check        20000.00 CNY
+  Income:Services          -19801.98 CNY
+  Liabilities:Tax:VAT         -198.02 CNY
+
+2026-01-18 * "客户B" "数据服务月费"
+  Assets:Bank:Check         8000.00 CNY
+  Income:Services           -7920.79 CNY
+  Liabilities:Tax:VAT          -79.21 CNY
+
+2026-01-28 * "客户A" "咨询项目尾款"
+  Assets:Bank:Check        18000.00 CNY
+  Income:Services          -17821.78 CNY
+  Liabilities:Tax:VAT         -178.22 CNY
+
+; 一月份支出：办公/软件/餐饮
+2026-01-10 * "办公用品店" "桌椅与耗材"
+  Expenses:Office           3200.00 CNY
+  Liabilities:CreditCard
+
+2026-01-15 * "云服务商" "服务器年费"
+  Expenses:Software         2400.00 CNY
+  Liabilities:CreditCard
+
+2026-01-22 * "餐厅" "客户接待餐费"
+  Expenses:Meals            860.00 CNY
+  Assets:Cash
+
+; 信用卡还款（CreditCard 累计欠 -5600，还款+5600清零，Check 隐式 -5600）
+2026-01-31 * "还款" "一月信用卡结清"
+  Liabilities:CreditCard  5600.00 CNY
+  Assets:Bank:Check
+
+; 二月份：再记几笔，供 git log/blame 演示
+2026-02-03 * "客户C" "新客户服务预付款"
+  Assets:Bank:Check        15000.00 CNY
+  Income:Services          -14851.49 CNY
+  Liabilities:Tax:VAT         -148.51 CNY
+
+2026-02-12 * "云服务商" "域名续费"
+  Expenses:Software          99.00 CNY
+  Liabilities:CreditCard
+
+; 余额断言（= 校验：此刻账户余额须等于给定值，防错账）
+2026-02-28 balance Assets:Bank:Check  105400.00 CNY
+
+; 三月份
+2026-03-05 * "客户D" "三月新订单"
+  Assets:Bank:Check        12000.00 CNY
+  Income:Services          -11881.19 CNY
+  Liabilities:Tax:VAT         -118.81 CNY
+
+2026-04-26 * "N/A" "买键盘 650 用信用卡"
+  Expenses:Office  650.00 CNY
+  Liabilities:CreditCard  -650.00 CNY
+
+2026-08-12 * "" "买咖啡"
+  voucher: "凭证/2026-08/咖啡_微信支付凭证.txt"
+  voucher_sha256: "51a5794e97dde7c8ff91237f268fd1e8105e8c39b8dd881624f5b5f4473ec144"
+  Expenses:Meals  30 CNY
+  Assets:Cash  -30 CNY
